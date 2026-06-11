@@ -2,7 +2,7 @@
  * TRIDENT PROPOSAL SUITE - REPOSITORY LOGIC DATA LAYER
  * Handles core state holding structures and simulated ingestion execution pipelines.
  */
-
+/*
 const tridentProductionMockDataset = {
     winProbability: 84,
     budgetScore: 91,
@@ -44,7 +44,7 @@ const tridentProductionMockDataset = {
 /**
  * Simulates a request delay to mimic backend server LLM inference engine tracking processing cycles.
  * @param {Function} callback - Function executed on processing cycle completion
- */
+ 
 function simulateModelInference(callback) {
     const delayDuration = 750; // Milliseconds
     setTimeout(() => {
@@ -52,29 +52,26 @@ function simulateModelInference(callback) {
     }, delayDuration);
 }
 
+*/
 
 //-----------------
 // fetch logic
-
-
-
-
 
 /**
  * TRIDENT PROPOSAL SUITE - REPOSITORY LOGIC DATA LAYER (SUPABASE INTEGRATION)
  */
 
-// Replace these with your actual Supabase project credentials
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+// ⚠️ REPLACE THESE WITH YOUR ACTUAL SUPABASE CREDENTIALS
+const SUPABASE_URL = "https://rdmtfjehzatfwppsawzc.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_gS8yuDOJyH6mKvdIzGWf_w_IPPHavYB";
 
 /**
- * Fetches the latest live pipeline calculation execution entry from Supabase
+ * Fetches the absolute latest live pipeline execution entry from your Supabase table
  * @param {Function} callback - Function executed on processing cycle completion
  */
 async function simulateModelInference(callback) {
     try {
-        // Fetch the absolute newest record added by your friend's Python pipeline
+        // Fetch the newest record added to the table sorted by timestamp
         const response = await fetch(`${SUPABASE_URL}/rest/v1/proposal_data?select=*&order=created_at.desc&limit=1`, {
             method: 'GET',
             headers: {
@@ -89,7 +86,7 @@ async function simulateModelInference(callback) {
         if (records && records.length > 0) {
             const liveData = records[0];
             
-            // Map Supabase column names to match the exact keys your app.js expects
+            // Map Supabase columns cleanly to match the exact structural keys your app.js expects
             const structuredDataset = {
                 winProbability: liveData.win_probability,
                 budgetScore: liveData.budget_score,
@@ -102,7 +99,7 @@ async function simulateModelInference(callback) {
             
             callback(structuredDataset);
         } else {
-            alert("Database is currently empty. Awaiting backend python sync execution.");
+            alert("Database is currently empty. Awaiting backend python synchronization execution.");
         }
     } catch (error) {
         console.error("Critical System Pipeline Error:", error);
