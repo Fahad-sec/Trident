@@ -1,12 +1,7 @@
 /**
  * TRIDENT PROPOSAL SUITE - APPLICATION CONTROLLER ENGINE
- * Orchestrates event handling routines, SPA page state mutations, and DOM structural binding pipelines.
  */
 
-/**
- * Handles Tab navigation mutations across the interface matrix viewport.
- * @param {string} tabId - Target section container element key strings
- */
 function switchTab(tabId) {
     const tabs = ['uploadTab', 'complianceTab', 'draftTab'];
     
@@ -18,22 +13,15 @@ function switchTab(tabId) {
 
         if (id === tabId) {
             element.classList.remove('hidden');
-            // Inject Active Corporate Styling Framework
             button.className = "w-full flex items-center justify-between px-3 py-2 rounded text-xs font-medium bg-enterprise-800 text-white transition-all text-left";
         } else {
             element.classList.add('hidden');
-            // Inject Neutral High-Contrast Styling Framework
             button.className = "w-full flex items-center justify-between px-3 py-2 rounded text-xs font-medium text-slate-400 hover:bg-enterprise-800/60 hover:text-white transition-all text-left";
         }
     });
 }
 
-/**
- * Triggers the main document parse and data extraction process.
- * Talks to the mock data interface and processes metrics pipelines directly.
- */
 function triggerIngestionPipeline() {
-    // 1. Shift Top Header App State Visual Indicators to Ingestion Mode
     const engineStatus = document.getElementById('coreEngineStatus');
     const statusDot = document.getElementById('statusIndicatorDot');
     
@@ -43,89 +31,120 @@ function triggerIngestionPipeline() {
         statusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-ping";
     }
 
-    // 2. Pass control parameters to data layer model cycles
     simulateModelInference((hydratedData) => {
-        
-        // Populate Strategic Evaluation Badges
         const badge = document.getElementById('goNoGoBadge');
         if (badge) {
             badge.innerText = hydratedData.decision;
             badge.className = "px-3 py-1 rounded text-xs font-mono font-bold uppercase tracking-wider bg-emerald-950 text-emerald-400 border border-emerald-800";
         }
 
-        // Hydrate Strategic Probability Metrics Displays
+        // Dynamic Accent Threshold Logic
         const scoreDisplay = document.getElementById('winScoreDisplay');
         if (scoreDisplay) {
-            scoreDisplay.innerText = hydratedData.winProbability + "%";
-            scoreDisplay.className = "text-5xl font-light text-emerald-500 font-mono";
+            if (hydratedData.winProbability >= 70) {
+                scoreDisplay.className = "text-5xl font-light text-emerald-500 font-mono";
+            } else if (hydratedData.winProbability >= 40) {
+                scoreDisplay.className = "text-5xl font-light text-amber-500 font-mono";
+            } else {
+                scoreDisplay.className = "text-5xl font-light text-rose-500 font-mono";
+            }
         }
-        
-        // Handle Progress Bar Metric Animations
-        updateProgressBar('budgetBar', 'budgetBarVal', hydratedData.budgetScore);
-        updateProgressBar('matchBar', 'matchBarVal', hydratedData.capabilityScore);
 
-        // Build Compliance Traceability Matrix View
+        // Animated Metric Aggregation
+        animateMetricValue('winScoreDisplay', hydratedData.winProbability, true);
+        animateProgressBar('budgetBar', 'budgetBarVal', hydratedData.budgetScore);
+        animateProgressBar('matchBar', 'matchBarVal', hydratedData.capabilityScore);
+
         hydrateComplianceDataGrid(hydratedData.compliance);
 
-        // Update Global UI Counter Badges
         document.getElementById('complianceMatrixMeta').innerText = `${hydratedData.compliance.length} Requirements Traced`;
         document.getElementById('badgeCount-upload').innerText = "1 Active";
         document.getElementById('badgeCount-compliance').innerText = hydratedData.compliance.length;
         document.getElementById('badgeCount-draft').innerText = "2 Nodes";
 
-        // Hydrate Technical Directive Nodes Panels
         hydrateDirectiveNodeFeed(hydratedData.directives);
 
-        // Populate Final Output Technical Narrative Field Block
-        const draftEditor = document.getElementById('aiDraftTextArea');
-        if (draftEditor) {
-            draftEditor.value = hydratedData.proposalNarrative;
-        }
+        // Simulated AI Text Streaming Integration
+        streamProposalNarrative('aiDraftTextArea', hydratedData.proposalNarrative, () => {
+            if (engineStatus && statusDot) {
+                engineStatus.innerText = "Engine Status: Synchronization Complete";
+                engineStatus.className = "text-xs font-medium text-emerald-500 font-mono";
+                statusDot.className = "w-2 h-2 rounded-full bg-emerald-500";
+            }
 
-        // Complete synchronization updates on global UI elements
-        if (engineStatus && statusDot) {
-            engineStatus.innerText = "Engine Status: Synchronization Complete";
-            engineStatus.className = "text-xs font-medium text-emerald-500 font-mono";
-            statusDot.className = "w-2 h-2 rounded-full bg-emerald-500";
-        }
+            const apiText = document.getElementById('apiStatusDisplay');
+            if (apiText) {
+                apiText.innerText = "Dataset Hydrated";
+                apiText.className = "text-emerald-500 font-medium";
+            }
+        });
 
-        const apiText = document.getElementById('apiStatusDisplay');
-        if (apiText) {
-            apiText.innerText = "Dataset Hydrated";
-            apiText.className = "text-emerald-500 font-medium";
-        }
-
-        // Advance application runtime viewport view layout automatically
         switchTab('complianceTab');
     });
 }
 
-/**
- * Utility tracker helper function updating utility horizontal bar indicators
- */
-function updateProgressBar(barId, valueId, targetScore) {
-    const bar = document.getElementById(barId);
-    const valueLabel = document.getElementById(valueId);
-    if (bar && valueLabel) {
-        bar.style.width = targetScore + "%";
-        valueLabel.innerText = targetScore + "%";
-        valueLabel.className = "text-emerald-500";
-    }
+function animateMetricValue(elementId, targetValue, appendPercent = false) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+
+    let current = 0;
+    const duration = 1000; 
+    const fps = 60;
+    const step = targetValue / (duration / (1000 / fps));
+
+    const interval = setInterval(() => {
+        current += step;
+        if (current >= targetValue) {
+            clearInterval(interval);
+            element.innerText = targetValue + (appendPercent ? "%" : "");
+        } else {
+            element.innerText = Math.floor(current) + (appendPercent ? "%" : "");
+        }
+    }, 1000 / fps);
 }
 
-/**
- * Loops and builds tabular data rows for the core Traceability Matrix 
- */
+function animateProgressBar(barId, valueId, targetScore) {
+    const bar = document.getElementById(barId);
+    const valueLabel = document.getElementById(valueId);
+    if (!bar || !valueLabel) return;
+
+    bar.style.width = targetScore + "%";
+    animateMetricValue(valueId, targetScore, true);
+}
+
+function streamProposalNarrative(elementId, fullRawText, onCompleteCallback) {
+    const workspace = document.getElementById(elementId);
+    if (!workspace) {
+        if (onCompleteCallback) onCompleteCallback();
+        return;
+    }
+
+    workspace.value = ""; 
+    const lines = fullRawText.split('\n');
+    let pointer = 0;
+
+    const streamInterval = setInterval(() => {
+        if (pointer < lines.length) {
+            workspace.value += lines[pointer] + '\n';
+            workspace.scrollTop = workspace.scrollHeight;
+            pointer++;
+        } else {
+            clearInterval(streamInterval);
+            if (onCompleteCallback) onCompleteCallback();
+        }
+    }, 100); 
+}
+
 function hydrateComplianceDataGrid(complianceRecords) {
     const tableBody = document.getElementById('complianceTableBody');
     if (!tableBody) return;
     
-    tableBody.innerHTML = ""; // Clear current default HTML schemas
+    tableBody.innerHTML = ""; 
     
     complianceRecords.forEach(record => {
-        const flagStyle = record.status === "COMPLIANT" 
-            ? "bg-emerald-950/40 text-emerald-400 border-emerald-900" 
-            : "bg-rose-950/40 text-rose-400 border-rose-900";
+        const flagStyle = record.status === "MANDATE-TRD-04" || record.status === "NON-COMPLIANT"
+            ? "bg-rose-950/40 text-rose-400 border-rose-900"
+            : "bg-emerald-950/40 text-emerald-400 border-emerald-900";
         
         const rowStringMarkup = `
             <tr class="hover:bg-enterprise-900/40 transition-colors">
@@ -141,9 +160,6 @@ function hydrateComplianceDataGrid(complianceRecords) {
     });
 }
 
-/**
- * Renders individual card panels inside the extracted tender panels feed 
- */
 function hydrateDirectiveNodeFeed(directivesList) {
     const directiveContainer = document.getElementById('rfpContextArea');
     if (!directiveContainer) return;
@@ -156,3 +172,27 @@ function hydrateDirectiveNodeFeed(directivesList) {
             </div>`;
     });
 }
+
+document.getElementById('exportDocumentBtn').addEventListener('click', () => {
+    const narrativeWorkspace = document.getElementById('aiDraftTextArea'); 
+    
+    if (!narrativeWorkspace) {
+        alert("No active proposal data vector available for export compilation.");
+        return;
+    }
+
+    const updatedTextContent = narrativeWorkspace.value;
+
+    const textBlob = new Blob([updatedTextContent], { type: 'text/plain' });
+    const downloadUrl = URL.createObjectURL(textBlob);
+    
+    const temporaryLink = document.createElement('a');
+    temporaryLink.href = downloadUrl;
+    temporaryLink.download = `TRIDENT_PROPOSAL_MANIFEST_${new Date().toISOString().slice(0,10)}.txt`;
+    
+    document.body.appendChild(temporaryLink);
+    temporaryLink.click();
+    
+    document.body.removeChild(temporaryLink);
+    URL.revokeObjectURL(downloadUrl);
+});

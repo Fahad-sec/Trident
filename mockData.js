@@ -61,7 +61,6 @@ function simulateModelInference(callback) {
  * TRIDENT PROPOSAL SUITE - REPOSITORY LOGIC DATA LAYER (SUPABASE INTEGRATION)
  */
 
-// ⚠️ REPLACE THESE WITH YOUR ACTUAL SUPABASE CREDENTIALS
 const SUPABASE_URL = "https://rdmtfjehzatfwppsawzc.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_gS8yuDOJyH6mKvdIzGWf_w_IPPHavYB";
 
