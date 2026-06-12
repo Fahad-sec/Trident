@@ -27,30 +27,36 @@ function switchTab(tabId) {
  * SECTION 2: METRIC VISUALIZATION ANIMATIONS
  * ==========================================
  */
+const activeMetricIntervals = {};
+
 function animateMetricValue(elementId, targetValue, appendPercent = false) {
     const element = document.getElementById(elementId);
     if (!element) return;
+
+    if (activeMetricIntervals[elementId]) {
+        clearInterval(activeMetricIntervals[elementId]);
+    }
 
     let current = 0;
     const duration = 1000; 
     const fps = 60;
     const step = targetValue / (duration / (1000 / fps));
 
-    const interval = setInterval(() => {
+    activeMetricIntervals[elementId] = setInterval(() => {
         current += step;
         if (current >= targetValue) {
-            clearInterval(interval);
-            element.innerText = targetValue + (appendPercent ? "%" : "");
+            clearInterval(activeMetricIntervals[elementId]);
+            delete activeMetricIntervals[elementId];
+            element.textContent = targetValue + (appendPercent ? "%" : "");
         } else {
-            element.innerText = Math.floor(current) + (appendPercent ? "%" : "");
+            element.textContent = Math.floor(current) + (appendPercent ? "%" : "");
         }
     }, 1000 / fps);
 }
 
 function animateProgressBar(barId, valueId, targetScore) {
     const bar = document.getElementById(barId);
-    const valueLabel = document.getElementById(valueId);
-    if (!bar || !valueLabel) return;
+    if (!bar) return;
 
     bar.style.width = targetScore + "%";
     animateMetricValue(valueId, targetScore, true);
@@ -84,6 +90,13 @@ function streamProposalNarrative(elementId, fullRawText, onCompleteCallback) {
  * SECTION 3: DATA HYDRATION GRID RENDERING
  * ==========================================
  */
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+    );
+}
+
 function hydrateComplianceDataGrid(complianceRecords) {
     const tableBody = document.getElementById('complianceTableBody');
     if (!tableBody) return;
@@ -97,11 +110,11 @@ function hydrateComplianceDataGrid(complianceRecords) {
         
         const rowStringMarkup = `
             <tr class="hover:bg-enterprise-900/40 transition-colors">
-                <td class="px-5 py-3 text-slate-500 font-bold">${record.id}</td>
-                <td class="px-5 py-3 text-slate-300 font-sans tracking-tight">${record.req}</td>
-                <td class="px-5 py-3 text-slate-400 font-sans text-[11px] leading-relaxed">${record.match}</td>
+                <td class="px-5 py-3 text-slate-500 font-bold">${escapeHTML(record.id)}</td>
+                <td class="px-5 py-3 text-slate-300 font-sans tracking-tight">${escapeHTML(record.req)}</td>
+                <td class="px-5 py-3 text-slate-400 font-sans text-[11px] leading-relaxed">${escapeHTML(record.match)}</td>
                 <td class="px-5 py-3 text-center">
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider border ${flagStyle}">${record.status}</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider border ${flagStyle}">${escapeHTML(record.status)}</span>
                 </td>
             </tr>
         `;
@@ -117,7 +130,7 @@ function hydrateDirectiveNodeFeed(directivesList) {
     directivesList.forEach(textSegment => {
         directiveContainer.innerHTML += `
             <div class="bg-enterprise-900 p-3.5 rounded border border-enterprise-800 font-sans text-xs text-slate-400 leading-normal">
-                ${textSegment}
+                ${escapeHTML(textSegment)}
             </div>`;
     });
 }
@@ -128,8 +141,8 @@ function hydrateDirectiveNodeFeed(directivesList) {
  * ==========================================
  */
 function initializePhysicalUploadBridge() {
-    const uploadZone = document.getElementById('uploadTab');
-    if (!uploadZone) return;
+    const uploadBox = document.getElementById('dropZoneContainer');
+    if (!uploadBox) return;
 
     const nativeInput = document.createElement('input');
     nativeInput.type = 'file';
@@ -137,28 +150,36 @@ function initializePhysicalUploadBridge() {
     nativeInput.className = 'hidden';
     document.body.appendChild(nativeInput);
 
-    uploadZone.addEventListener('click', () => nativeInput.click());
+    uploadBox.addEventListener('click', (e) => {
+        e.stopPropagation(); 
+        nativeInput.click();
+    });
     
     nativeInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) streamFileToAiEngine(file);
     });
 
-    uploadZone.addEventListener('dragover', (e) => {
+    uploadBox.addEventListener('dragover', (e) => {
         e.preventDefault();
-        uploadZone.classList.add('border-emerald-500/50', 'bg-enterprise-800/40');
+        uploadBox.classList.add('border-emerald-500', 'bg-enterprise-800/20');
     });
 
-    uploadZone.addEventListener('dragleave', () => {
-        uploadZone.classList.remove('border-emerald-500/50', 'bg-enterprise-800/40');
+    uploadBox.addEventListener('dragleave', () => {
+        uploadBox.classList.remove('border-emerald-500', 'bg-enterprise-800/20');
     });
 
-    uploadZone.addEventListener('drop', (e) => {
+    uploadBox.addEventListener('drop', (e) => {
         e.preventDefault();
-        uploadZone.classList.remove('border-emerald-500/50', 'bg-enterprise-800/40');
+        uploadBox.classList.remove('border-emerald-500', 'bg-enterprise-800/20');
         const file = e.dataTransfer.files[0];
         if (file) streamFileToAiEngine(file);
     });
+}
+
+function triggerIngestionPipeline() {
+    const box = document.getElementById('dropZoneContainer');
+    if (box) box.click();
 }
 
 async function streamFileToAiEngine(file) {
@@ -166,44 +187,83 @@ async function streamFileToAiEngine(file) {
     const statusDot = document.getElementById('statusIndicatorDot');
     
     if (engineStatus && statusDot) {
-        engineStatus.innerText = `Ingesting & Extracting: ${file.name}...`;
+        engineStatus.innerText = `Uploading & Registering: ${file.name}...`;
         engineStatus.className = "text-xs font-medium text-amber-500 font-mono";
         statusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-ping";
     }
 
-    const networkPayload = new FormData();
-    networkPayload.append("file", file);
-
     try {
-        // TARGET ENHANCEMENT: Pointing directly to the live Hugging Face Space container gateway
-        const response = await fetch("https://darkness592-trident.hf.space/api/upload-tender", {
-            method: "POST",
-            body: networkPayload
-        });
+        // 1. Generate a clean random filename to prevent overwrites in the bucket
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `tenders/${fileName}`;
 
-        if (!response.ok) throw new Error("Cloud AI Space Pipeline returned an unreachable status code.");
-        const rawPayload = await response.json();
-        
-        if (rawPayload.success && rawPayload.data) {
-            const aiEngineData = rawPayload.data;
-            
-            const hydratedData = {
-                decision: aiEngineData.decision,
-                winProbability: aiEngineData.win_probability,
-                budgetScore: aiEngineData.budget_score,
-                capabilityScore: aiEngineData.capability_score,
-                compliance: aiEngineData.compliance,
-                directives: aiEngineData.directives,
-                proposalNarrative: aiEngineData.proposal_narrative
-            };
+        // 2. Upload raw PDF directly to Supabase storage bucket via global client instance
+        let { error: uploadError } = await window.supabaseClient.storage
+            .from('tender-files') 
+            .upload(filePath, file);
 
-            renderDatasetToDashboard(hydratedData);
+        if (uploadError) throw uploadError;
+
+        // 3. Grab the generated public URL link of your uploaded PDF
+        const { data: { publicUrl } } = window.supabaseClient.storage
+            .from('tender-files')
+            .getPublicUrl(filePath);
+
+        // 4. Insert a new job tracking row into the 'tender_jobs' table
+        const { data: jobData, error: jobError } = await window.supabaseClient
+            .from('tender_jobs')
+            .insert([{ file_url: publicUrl, status: 'pending' }])
+            .select()
+            .single();
+
+        if (jobError) throw jobError;
+
+        if (engineStatus) {
+            engineStatus.innerText = "Processing: Handed off to local AI Daemon...";
         }
 
+        // 5. Open a real-time subscription channel to watch for database row changes
+        // Your friend's python server will flip status to 'processing', then 'completed'
+        const jobSubscription = window.supabaseClient
+            .channel(`job-changes-${jobData.id}`)
+            .on('postgres_changes', { 
+                event: 'UPDATE', 
+                schema: 'public', 
+                table: 'tender_jobs', 
+                filter: `id=eq.${jobData.id}` 
+            }, (payload) => {
+                const updatedRow = payload.new;
+                
+                if (updatedRow.status === 'processing' && engineStatus) {
+                    engineStatus.innerText = "Model crunching text parameters...";
+                }
+                
+                if (updatedRow.status === 'completed') {
+                    const aiEngineData = updatedRow.ai_response;
+                    
+                    // Explicitly map properties to match dashboard rendering keys
+                    const hydratedData = {
+                        decision: aiEngineData.decision,
+                        winProbability: aiEngineData.win_probability,
+                        budgetScore: aiEngineData.budget_score,
+                        capabilityScore: aiEngineData.capability_score,
+                        compliance: aiEngineData.compliance,
+                        directives: aiEngineData.directives,
+                        proposalNarrative: aiEngineData.proposal_narrative
+                    };
+
+                    // Tear down the active channel cleanly after completion
+                    window.supabaseClient.removeChannel(jobSubscription);
+                    renderDatasetToDashboard(hydratedData);
+                }
+            })
+            .subscribe();
+
     } catch (error) {
-        console.error(error);
+        console.error("Pipeline Execution Failure:", error);
         if (engineStatus && statusDot) {
-            engineStatus.innerText = "Engine Error: Cloud Synchronization Failed";
+            engineStatus.innerText = "Transaction Error: Handshake Failed";
             engineStatus.className = "text-xs font-medium text-rose-500 font-mono";
             statusDot.className = "w-2 h-2 rounded-full bg-rose-500";
         }
@@ -268,22 +328,29 @@ function renderDatasetToDashboard(hydratedData) {
  * SECTION 5: DOM EVENTS INITIALIZATION
  * ==========================================
  */
-document.getElementById('exportDocumentBtn').addEventListener('click', () => {
-    const narrativeWorkspace = document.getElementById('aiDraftTextArea'); 
-    if (!narrativeWorkspace) return;
+function initializeAppComponents() {
+    initializePhysicalUploadBridge();
 
-    const updatedTextContent = narrativeWorkspace.value;
-    const textBlob = new Blob([updatedTextContent], { type: 'text/plain' });
-    const downloadUrl = URL.createObjectURL(textBlob);
-    
-    const temporaryLink = document.createElement('a');
-    temporaryLink.href = downloadUrl;
-    temporaryLink.download = `TRIDENT_PROPOSAL_MANIFEST_${new Date().toISOString().slice(0,10)}.txt`;
-    
-    document.body.appendChild(temporaryLink);
-    temporaryLink.click();
-    document.body.removeChild(temporaryLink);
-    URL.revokeObjectURL(downloadUrl);
-});
+    const exportBtn = document.getElementById('exportDocumentBtn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            const narrativeWorkspace = document.getElementById('aiDraftTextArea'); 
+            if (!narrativeWorkspace) return;
 
-document.addEventListener('DOMContentLoaded', initializePhysicalUploadBridge);
+            const updatedTextContent = narrativeWorkspace.value;
+            const textBlob = new Blob([updatedTextContent], { type: 'text/plain' });
+            const downloadUrl = URL.createObjectURL(textBlob);
+            
+            const temporaryLink = document.createElement('a');
+            temporaryLink.href = downloadUrl;
+            temporaryLink.download = `TRIDENT_PROPOSAL_MANIFEST_${new Date().toISOString().slice(0,10)}.txt`;
+            
+            document.body.appendChild(temporaryLink);
+            temporaryLink.click();
+            document.body.removeChild(temporaryLink);
+            URL.revokeObjectURL(downloadUrl);
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', initializeAppComponents);

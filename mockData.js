@@ -64,7 +64,9 @@ function simulateModelInference(callback) {
 const SUPABASE_URL = "https://rdmtfjehzatfwppsawzc.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_gS8yuDOJyH6mKvdIzGWf_w_IPPHavYB";
 
+window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 /**
+
  * Fetches the absolute latest live pipeline execution entry from your Supabase table
  * @param {Function} callback - Function executed on processing cycle completion
  */

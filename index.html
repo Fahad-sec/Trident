@@ -82,7 +82,7 @@
                     <nav class="space-y-1">
                         <button id="btn-complianceTab" onclick="switchTab('complianceTab')" class="w-full flex items-center justify-between px-3 py-2 rounded text-xs font-medium text-slate-400 hover:bg-enterprise-800/60 hover:text-white transition-all text-left">
                             <span class="flex items-center space-x-2.5">
-                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 002-2h2a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
                                 <span>Compliance Matrix</span>
                             </span>
                             <span id="badgeCount-compliance" class="bg-enterprise-800 text-[10px] px-1.5 py-0.2 rounded text-slate-500 font-mono">--</span>
@@ -112,7 +112,6 @@
         </aside>
 
         <main class="flex-1 p-6 overflow-y-auto bg-enterprise-950">
-            
             <section id="uploadTab" class="space-y-6">
                 <div class="border-b border-enterprise-800 pb-4">
                     <h2 class="text-xl font-semibold tracking-tight text-white">Source Document Ingestion</h2>
@@ -120,14 +119,14 @@
                 </div>
 
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    <div class="xl:col-span-2 bg-enterprise-900 p-6 rounded border border-enterprise-800 shadow-sm flex flex-col justify-between">
+                    <div id="dropZoneContainer" class="xl:col-span-2 bg-enterprise-900 p-6 rounded border border-enterprise-800 shadow-sm flex flex-col justify-between">
                         <div>
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">Document Upload Interface</h3>
                                 <span class="text-[10px] font-mono text-slate-500">Max File Payload: 80 MB</span>
                             </div>
                             
-                            <div class="border border-dashed border-enterprise-700 hover:border-enterprise-accent rounded p-12 flex flex-col items-center justify-center cursor-pointer transition-all bg-enterprise-950/30 group" onclick="triggerIngestionPipeline()">
+                            <div class="border border-dashed border-enterprise-700 hover:border-enterprise-accent rounded p-12 flex flex-col items-center justify-center cursor-pointer transition-all bg-enterprise-950/30 group">
                                 <svg class="w-8 h-8 text-slate-500 mb-3 group-hover:text-enterprise-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                                 <p class="text-xs font-medium text-slate-300">Initialize Pipeline By Target File Import</p>
                                 <p class="text-[10px] text-slate-500 mt-1 font-mono">Accepted Specifications: .PDF / .DOCX / Unstructured Tender Text</p>
@@ -229,6 +228,9 @@
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+    </script>
     <script src="mockData.js"></script>
     <script src="app.js"></script>
 </body>
