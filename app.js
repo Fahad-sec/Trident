@@ -175,12 +175,13 @@ async function streamFileToAiEngine(file) {
     networkPayload.append("file", file);
 
     try {
-        const response = await fetch("http://127.0.0.1:8000/api/upload-tender", {
+        // TARGET ENHANCEMENT: Pointing directly to the live Hugging Face Space container gateway
+        const response = await fetch("https://darkness592-trident.hf.space/api/upload-tender", {
             method: "POST",
             body: networkPayload
         });
 
-        if (!response.ok) throw new Error("Local AI Pipeline unreachable.");
+        if (!response.ok) throw new Error("Cloud AI Space Pipeline returned an unreachable status code.");
         const rawPayload = await response.json();
         
         if (rawPayload.success && rawPayload.data) {
@@ -202,7 +203,7 @@ async function streamFileToAiEngine(file) {
     } catch (error) {
         console.error(error);
         if (engineStatus && statusDot) {
-            engineStatus.innerText = "Engine Error: Network Link Failed";
+            engineStatus.innerText = "Engine Error: Cloud Synchronization Failed";
             engineStatus.className = "text-xs font-medium text-rose-500 font-mono";
             statusDot.className = "w-2 h-2 rounded-full bg-rose-500";
         }
