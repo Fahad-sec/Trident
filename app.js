@@ -1,7 +1,3 @@
-/**
- * TRIDENT PROPOSAL SUITE - APPLICATION CONTROLLER ENGINE
- */
-
 function switchTab(tabId) {
     const tabs = ['uploadTab', 'complianceTab', 'draftTab'];
     
@@ -38,7 +34,6 @@ function triggerIngestionPipeline() {
             badge.className = "px-3 py-1 rounded text-xs font-mono font-bold uppercase tracking-wider bg-emerald-950 text-emerald-400 border border-emerald-800";
         }
 
-        // Dynamic Accent Threshold Logic
         const scoreDisplay = document.getElementById('winScoreDisplay');
         if (scoreDisplay) {
             if (hydratedData.winProbability >= 70) {
@@ -50,7 +45,6 @@ function triggerIngestionPipeline() {
             }
         }
 
-        // Animated Metric Aggregation
         animateMetricValue('winScoreDisplay', hydratedData.winProbability, true);
         animateProgressBar('budgetBar', 'budgetBarVal', hydratedData.budgetScore);
         animateProgressBar('matchBar', 'matchBarVal', hydratedData.capabilityScore);
@@ -64,7 +58,6 @@ function triggerIngestionPipeline() {
 
         hydrateDirectiveNodeFeed(hydratedData.directives);
 
-        // Simulated AI Text Streaming Integration
         streamProposalNarrative('aiDraftTextArea', hydratedData.proposalNarrative, () => {
             if (engineStatus && statusDot) {
                 engineStatus.innerText = "Engine Status: Synchronization Complete";
@@ -182,7 +175,6 @@ document.getElementById('exportDocumentBtn').addEventListener('click', () => {
     }
 
     const updatedTextContent = narrativeWorkspace.value;
-
     const textBlob = new Blob([updatedTextContent], { type: 'text/plain' });
     const downloadUrl = URL.createObjectURL(textBlob);
     
