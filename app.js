@@ -1,3 +1,8 @@
+/**
+ * ==========================================
+ * SECTION 1: NAVIGATION & TAB CONTROLLER
+ * ==========================================
+ */
 function switchTab(tabId) {
     const tabs = ['uploadTab', 'complianceTab', 'draftTab'];
     
@@ -17,65 +22,11 @@ function switchTab(tabId) {
     });
 }
 
-function triggerIngestionPipeline() {
-    const engineStatus = document.getElementById('coreEngineStatus');
-    const statusDot = document.getElementById('statusIndicatorDot');
-    
-    if (engineStatus && statusDot) {
-        engineStatus.innerText = "Engine Status: Ingesting Data Assets...";
-        engineStatus.className = "text-xs font-medium text-amber-500 font-mono";
-        statusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-ping";
-    }
-
-    simulateModelInference((hydratedData) => {
-        const badge = document.getElementById('goNoGoBadge');
-        if (badge) {
-            badge.innerText = hydratedData.decision;
-            badge.className = "px-3 py-1 rounded text-xs font-mono font-bold uppercase tracking-wider bg-emerald-950 text-emerald-400 border border-emerald-800";
-        }
-
-        const scoreDisplay = document.getElementById('winScoreDisplay');
-        if (scoreDisplay) {
-            if (hydratedData.winProbability >= 70) {
-                scoreDisplay.className = "text-5xl font-light text-emerald-500 font-mono";
-            } else if (hydratedData.winProbability >= 40) {
-                scoreDisplay.className = "text-5xl font-light text-amber-500 font-mono";
-            } else {
-                scoreDisplay.className = "text-5xl font-light text-rose-500 font-mono";
-            }
-        }
-
-        animateMetricValue('winScoreDisplay', hydratedData.winProbability, true);
-        animateProgressBar('budgetBar', 'budgetBarVal', hydratedData.budgetScore);
-        animateProgressBar('matchBar', 'matchBarVal', hydratedData.capabilityScore);
-
-        hydrateComplianceDataGrid(hydratedData.compliance);
-
-        document.getElementById('complianceMatrixMeta').innerText = `${hydratedData.compliance.length} Requirements Traced`;
-        document.getElementById('badgeCount-upload').innerText = "1 Active";
-        document.getElementById('badgeCount-compliance').innerText = hydratedData.compliance.length;
-        document.getElementById('badgeCount-draft').innerText = "2 Nodes";
-
-        hydrateDirectiveNodeFeed(hydratedData.directives);
-
-        streamProposalNarrative('aiDraftTextArea', hydratedData.proposalNarrative, () => {
-            if (engineStatus && statusDot) {
-                engineStatus.innerText = "Engine Status: Synchronization Complete";
-                engineStatus.className = "text-xs font-medium text-emerald-500 font-mono";
-                statusDot.className = "w-2 h-2 rounded-full bg-emerald-500";
-            }
-
-            const apiText = document.getElementById('apiStatusDisplay');
-            if (apiText) {
-                apiText.innerText = "Dataset Hydrated";
-                apiText.className = "text-emerald-500 font-medium";
-            }
-        });
-
-        switchTab('complianceTab');
-    });
-}
-
+/**
+ * ==========================================
+ * SECTION 2: METRIC VISUALIZATION ANIMATIONS
+ * ==========================================
+ */
 function animateMetricValue(elementId, targetValue, appendPercent = false) {
     const element = document.getElementById(elementId);
     if (!element) return;
@@ -128,6 +79,11 @@ function streamProposalNarrative(elementId, fullRawText, onCompleteCallback) {
     }, 100); 
 }
 
+/**
+ * ==========================================
+ * SECTION 3: DATA HYDRATION GRID RENDERING
+ * ==========================================
+ */
 function hydrateComplianceDataGrid(complianceRecords) {
     const tableBody = document.getElementById('complianceTableBody');
     if (!tableBody) return;
@@ -166,13 +122,154 @@ function hydrateDirectiveNodeFeed(directivesList) {
     });
 }
 
+/**
+ * ==========================================
+ * SECTION 4: NETWORK FILE STREAMING & ADAPTER
+ * ==========================================
+ */
+function initializePhysicalUploadBridge() {
+    const uploadZone = document.getElementById('uploadTab');
+    if (!uploadZone) return;
+
+    const nativeInput = document.createElement('input');
+    nativeInput.type = 'file';
+    nativeInput.accept = '.pdf,.docx';
+    nativeInput.className = 'hidden';
+    document.body.appendChild(nativeInput);
+
+    uploadZone.addEventListener('click', () => nativeInput.click());
+    
+    nativeInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) streamFileToAiEngine(file);
+    });
+
+    uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('border-emerald-500/50', 'bg-enterprise-800/40');
+    });
+
+    uploadZone.addEventListener('dragleave', () => {
+        uploadZone.classList.remove('border-emerald-500/50', 'bg-enterprise-800/40');
+    });
+
+    uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('border-emerald-500/50', 'bg-enterprise-800/40');
+        const file = e.dataTransfer.files[0];
+        if (file) streamFileToAiEngine(file);
+    });
+}
+
+async function streamFileToAiEngine(file) {
+    const engineStatus = document.getElementById('coreEngineStatus');
+    const statusDot = document.getElementById('statusIndicatorDot');
+    
+    if (engineStatus && statusDot) {
+        engineStatus.innerText = `Ingesting & Extracting: ${file.name}...`;
+        engineStatus.className = "text-xs font-medium text-amber-500 font-mono";
+        statusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-ping";
+    }
+
+    const networkPayload = new FormData();
+    networkPayload.append("file", file);
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/api/upload-tender", {
+            method: "POST",
+            body: networkPayload
+        });
+
+        if (!response.ok) throw new Error("Local AI Pipeline unreachable.");
+        const rawPayload = await response.json();
+        
+        if (rawPayload.success && rawPayload.data) {
+            const aiEngineData = rawPayload.data;
+            
+            const hydratedData = {
+                decision: aiEngineData.decision,
+                winProbability: aiEngineData.win_probability,
+                budgetScore: aiEngineData.budget_score,
+                capabilityScore: aiEngineData.capability_score,
+                compliance: aiEngineData.compliance,
+                directives: aiEngineData.directives,
+                proposalNarrative: aiEngineData.proposal_narrative
+            };
+
+            renderDatasetToDashboard(hydratedData);
+        }
+
+    } catch (error) {
+        console.error(error);
+        if (engineStatus && statusDot) {
+            engineStatus.innerText = "Engine Error: Network Link Failed";
+            engineStatus.className = "text-xs font-medium text-rose-500 font-mono";
+            statusDot.className = "w-2 h-2 rounded-full bg-rose-500";
+        }
+    }
+}
+
+function renderDatasetToDashboard(hydratedData) {
+    const engineStatus = document.getElementById('coreEngineStatus');
+    const statusDot = document.getElementById('statusIndicatorDot');
+
+    const badge = document.getElementById('goNoGoBadge');
+    if (badge) {
+        badge.innerText = hydratedData.decision;
+        badge.className = hydratedData.winProbability < 40 
+            ? "px-3 py-1 rounded text-xs font-mono font-bold uppercase tracking-wider bg-rose-950 text-rose-400 border border-rose-800"
+            : "px-3 py-1 rounded text-xs font-mono font-bold uppercase tracking-wider bg-emerald-950 text-emerald-400 border border-emerald-800";
+    }
+
+    const scoreDisplay = document.getElementById('winScoreDisplay');
+    if (scoreDisplay) {
+        if (hydratedData.winProbability >= 70) {
+            scoreDisplay.className = "text-5xl font-light text-emerald-500 font-mono";
+        } else if (hydratedData.winProbability >= 40) {
+            scoreDisplay.className = "text-5xl font-light text-amber-500 font-mono";
+        } else {
+            scoreDisplay.className = "text-5xl font-light text-rose-500 font-mono";
+        }
+    }
+
+    animateMetricValue('winScoreDisplay', hydratedData.winProbability, true);
+    animateProgressBar('budgetBar', 'budgetBarVal', hydratedData.budgetScore);
+    animateProgressBar('matchBar', 'matchBarVal', hydratedData.capabilityScore);
+
+    hydrateComplianceDataGrid(hydratedData.compliance);
+
+    document.getElementById('complianceMatrixMeta').innerText = `${hydratedData.compliance.length} Requirements Traced`;
+    document.getElementById('badgeCount-upload').innerText = "1 Active";
+    document.getElementById('badgeCount-compliance').innerText = hydratedData.compliance.length;
+    document.getElementById('badgeCount-draft').innerText = `${hydratedData.directives.length} Nodes`;
+
+    hydrateDirectiveNodeFeed(hydratedData.directives);
+
+    streamProposalNarrative('aiDraftTextArea', hydratedData.proposalNarrative, () => {
+        if (engineStatus && statusDot) {
+            engineStatus.innerText = "Engine Status: Synchronization Complete";
+            engineStatus.className = "text-xs font-medium text-emerald-500 font-mono";
+            statusDot.className = "w-2 h-2 rounded-full bg-emerald-500";
+        }
+
+        const apiText = document.getElementById('apiStatusDisplay');
+        if (apiText) {
+            apiText.innerText = "Dataset Hydrated";
+            apiText.className = "text-emerald-500 font-medium";
+        }
+    });
+
+    switchTab('complianceTab');
+}
+
+/**
+ * ==========================================
+ * SECTION 5: DOM EVENTS INITIALIZATION
+ * ==========================================
+ */
 document.getElementById('exportDocumentBtn').addEventListener('click', () => {
     const narrativeWorkspace = document.getElementById('aiDraftTextArea'); 
-    
-    if (!narrativeWorkspace) {
-        alert("No active proposal data vector available for export compilation.");
-        return;
-    }
+    if (!narrativeWorkspace) return;
 
     const updatedTextContent = narrativeWorkspace.value;
     const textBlob = new Blob([updatedTextContent], { type: 'text/plain' });
@@ -184,7 +281,8 @@ document.getElementById('exportDocumentBtn').addEventListener('click', () => {
     
     document.body.appendChild(temporaryLink);
     temporaryLink.click();
-    
     document.body.removeChild(temporaryLink);
     URL.revokeObjectURL(downloadUrl);
 });
+
+document.addEventListener('DOMContentLoaded', initializePhysicalUploadBridge);
