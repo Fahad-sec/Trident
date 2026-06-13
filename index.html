@@ -40,20 +40,20 @@
             </div>
             <span class="text-xs font-mono text-enterprise-600 bg-enterprise-800 px-2 py-0.5 rounded tracking-widest uppercase">Proposal Suite v4.2</span>
         </div>
-        
+
         <div class="flex items-center space-x-6">
             <div class="flex items-center space-x-2 border-r border-enterprise-800 pr-6">
                 <span id="statusIndicatorDot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
                 <span class="text-xs font-medium text-slate-400 font-mono" id="coreEngineStatus">Engine Status: Idle</span>
             </div>
-            
+
             <div class="flex items-center space-x-2">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Evaluation Framework:</span>
                 <div id="goNoGoBadge" class="px-3 py-1 rounded text-xs font-mono font-bold uppercase tracking-wider bg-enterprise-800 text-slate-400 border border-enterprise-700">
                     Awaiting Source Ingestion
                 </div>
             </div>
-            
+
             <button id="exportDocumentBtn" class="bg-enterprise-accent hover:bg-blue-700 text-white font-medium px-4 py-1.5 rounded text-xs transition-colors shadow-sm tracking-wide">
                 Export System Document
             </button>
@@ -61,7 +61,7 @@
     </header>
 
     <div class="flex flex-1 overflow-hidden">
-        
+
         <aside class="w-64 bg-enterprise-900 border-r border-enterprise-800 p-4 flex flex-col justify-between select-none">
             <div class="space-y-6">
                 <div>
@@ -72,11 +72,11 @@
                                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                 <span>Source Tender / RFP</span>
                             </span>
-                            <span id="badgeCount-upload" class="bg-enterprise-700 text-[10px] px-1.5 py-0.2 rounded text-slate-300 font-mono">0</span>
+                            <span id="badgeCount-upload" class="bg-enterprise-700 text-[10px] px-1.5 py-0.5 rounded text-slate-300 font-mono">0</span>
                         </button>
                     </nav>
                 </div>
-                
+
                 <div>
                     <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">Analytical Processing</p>
                     <nav class="space-y-1">
@@ -85,14 +85,14 @@
                                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 002-2h2a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
                                 <span>Compliance Matrix</span>
                             </span>
-                            <span id="badgeCount-compliance" class="bg-enterprise-800 text-[10px] px-1.5 py-0.2 rounded text-slate-500 font-mono">--</span>
+                            <span id="badgeCount-compliance" class="bg-enterprise-800 text-[10px] px-1.5 py-0.5 rounded text-slate-500 font-mono">--</span>
                         </button>
                         <button id="btn-draftTab" onclick="switchTab('draftTab')" class="w-full flex items-center justify-between px-3 py-2 rounded text-xs font-medium text-slate-400 hover:bg-enterprise-800/60 hover:text-white transition-all text-left">
                             <span class="flex items-center space-x-2.5">
                                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                 <span>Technical Draft Engine</span>
                             </span>
-                            <span id="badgeCount-draft" class="bg-enterprise-800 text-[10px] px-1.5 py-0.2 rounded text-slate-500 font-mono">--</span>
+                            <span id="badgeCount-draft" class="bg-enterprise-800 text-[10px] px-1.5 py-0.5 rounded text-slate-500 font-mono">--</span>
                         </button>
                     </nav>
                 </div>
@@ -106,12 +106,14 @@
                 </div>
                 <div class="flex justify-between">
                     <span class="text-slate-400">API Pipeline:</span>
-                    <span id="apiStatusDisplay" class="text-amber-500 font-medium">Mocking Mode</span>
+                    <span id="apiStatusDisplay" class="text-amber-500 font-medium">Awaiting Upload</span>
                 </div>
             </div>
         </aside>
 
         <main class="flex-1 p-6 overflow-y-auto bg-enterprise-950">
+
+            <!-- ═══ UPLOAD TAB ═══════════════════════════════════════════════ -->
             <section id="uploadTab" class="space-y-6">
                 <div class="border-b border-enterprise-800 pb-4">
                     <h2 class="text-xl font-semibold tracking-tight text-white">Source Document Ingestion</h2>
@@ -119,25 +121,37 @@
                 </div>
 
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    <div id="dropZoneContainer" class="xl:col-span-2 bg-enterprise-900 p-6 rounded border border-enterprise-800 shadow-sm flex flex-col justify-between">
+
+                    <!--
+                        Drop zone — position:relative is required so the loading
+                        overlay (injected by showLoadingOverlay()) can anchor to it.
+                    -->
+                    <div id="dropZoneContainer"
+                         class="xl:col-span-2 bg-enterprise-900 p-6 rounded border border-enterprise-800 shadow-sm flex flex-col justify-between"
+                         style="position:relative;">
+
                         <div>
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">Document Upload Interface</h3>
                                 <span class="text-[10px] font-mono text-slate-500">Max File Payload: 80 MB</span>
                             </div>
-                            
+
                             <div class="border border-dashed border-enterprise-700 hover:border-enterprise-accent rounded p-12 flex flex-col items-center justify-center cursor-pointer transition-all bg-enterprise-950/30 group">
-                                <svg class="w-8 h-8 text-slate-500 mb-3 group-hover:text-enterprise-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                                <p class="text-xs font-medium text-slate-300">Initialize Pipeline By Target File Import</p>
-                                <p class="text-[10px] text-slate-500 mt-1 font-mono">Accepted Specifications: .PDF / .DOCX / Unstructured Tender Text</p>
+                                <svg class="w-8 h-8 text-slate-500 mb-3 group-hover:text-enterprise-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                </svg>
+                                <p class="text-xs font-medium text-slate-300">Click or drag a PDF / DOCX to begin</p>
+                                <p class="text-[10px] text-slate-500 mt-1 font-mono">Analysis takes 30–90 s — a spinner will appear</p>
                             </div>
                         </div>
+
                         <div class="mt-8 p-3 bg-enterprise-950 rounded border border-enterprise-800 text-[11px] text-slate-400 flex items-start space-x-2.5">
                             <span class="text-enterprise-accent font-bold font-mono">ℹ</span>
-                            <p class="leading-normal">Click inside the upload matrix framework above to simulate end-to-end extraction. Trident will populate target parameters instantly from the structured sample schemas.</p>
+                            <p class="leading-normal">Drop or click the upload area above. Trident will POST the file to the local AI backend, wait for the full Claude + RAG pipeline to finish, then hydrate the dashboard automatically.</p>
                         </div>
                     </div>
 
+                    <!-- Win probability panel -->
                     <div class="bg-enterprise-900 p-6 rounded border border-enterprise-800 shadow-sm flex flex-col justify-between">
                         <div>
                             <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4">Win Probability Analytics</h3>
@@ -145,11 +159,11 @@
                                 <div id="winScoreDisplay" class="text-5xl font-light text-slate-600 font-mono">--</div>
                                 <div class="text-[10px] uppercase font-bold text-slate-500 tracking-widest mt-2 font-mono">Calculated Score Index</div>
                             </div>
-                            
+
                             <div class="space-y-4">
                                 <div>
                                     <div class="flex justify-between text-[11px] font-mono mb-1.5">
-                                        <span class="text-slate-400">Fiscal/Budget Realignment Rating</span>
+                                        <span class="text-slate-400">Fiscal / Budget Realignment Rating</span>
                                         <span id="budgetBarVal" class="text-slate-500">0%</span>
                                     </div>
                                     <div class="w-full bg-enterprise-800 h-1.5 rounded overflow-hidden">
@@ -171,6 +185,7 @@
                 </div>
             </section>
 
+            <!-- ═══ COMPLIANCE TAB ════════════════════════════════════════════ -->
             <section id="complianceTab" class="hidden space-y-6">
                 <div class="border-b border-enterprise-800 pb-4">
                     <h2 class="text-xl font-semibold tracking-tight text-white">Compliance Check & Capability Alignment</h2>
@@ -179,8 +194,8 @@
 
                 <div class="bg-enterprise-900 rounded border border-enterprise-800 shadow-sm overflow-hidden">
                     <div class="px-5 py-3.5 bg-enterprise-900 border-b border-enterprise-800 flex justify-between items-center">
-                        <span class="text-xs font-bold uppercase text-slate-400 tracking-wider">Organizational Traceability Matrix</span>
-                        <span class="text-[10px] font-mono bg-enterprise-800 text-slate-400 px-2 py-0.5 rounded" id="complianceMatrixMeta">0 Records Cataloged</span>
+                        <span class="text-xs font-bold uppercase text-slate-400 tracking-wider">Organisational Traceability Matrix</span>
+                        <span class="text-[10px] font-mono bg-enterprise-800 text-slate-400 px-2 py-0.5 rounded" id="complianceMatrixMeta">0 Records Catalogued</span>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse font-mono text-xs">
@@ -194,7 +209,9 @@
                             </thead>
                             <tbody id="complianceTableBody" class="divide-y divide-enterprise-800 text-slate-300">
                                 <tr>
-                                    <td colspan="4" class="px-5 py-12 text-center text-slate-500 font-sans italic">Data stream uninitialized. Execute source file parsing to generate validation records.</td>
+                                    <td colspan="4" class="px-5 py-12 text-center text-slate-500 font-sans italic">
+                                        Data stream uninitialised. Upload a tender document to generate validation records.
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -202,6 +219,7 @@
                 </div>
             </section>
 
+            <!-- ═══ DRAFT TAB ═════════════════════════════════════════════════ -->
             <section id="draftTab" class="hidden h-full flex flex-col space-y-4">
                 <div class="border-b border-enterprise-800 pb-4">
                     <h2 class="text-xl font-semibold tracking-tight text-white">Technical Proposal Generation</h2>
@@ -212,25 +230,32 @@
                     <div class="bg-enterprise-900 p-5 rounded border border-enterprise-800 flex flex-col overflow-hidden">
                         <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-3">Extracted Target Directives</h3>
                         <div id="rfpContextArea" class="flex-1 bg-enterprise-950 p-4 rounded border border-enterprise-800 overflow-y-auto space-y-3 font-sans text-xs text-slate-500 italic">
-                            System state uninitialized. Discovered metadata segments will print to this partition.
+                            System state uninitialised. Discovered metadata segments will print to this partition.
                         </div>
                     </div>
-                    
+
                     <div class="bg-enterprise-900 p-5 rounded border border-enterprise-800 flex flex-col overflow-hidden">
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">Proposal Response Output</h3>
-                            <span class="text-[10px] font-mono text-enterprise-accent uppercase font-bold tracking-wider">System State: Auto-Populated Node</span>
+                            <span class="text-[10px] font-mono text-enterprise-accent uppercase font-bold tracking-wider">Auto-Populated</span>
                         </div>
-                        <textarea id="aiDraftTextArea" class="flex-1 w-full bg-enterprise-950 text-slate-300 font-mono text-xs p-4 rounded border border-enterprise-800 focus:outline-none focus:border-enterprise-accent resize-none leading-relaxed" placeholder="Awaiting document ingestion framework execution sequence..."></textarea>
+                        <textarea id="aiDraftTextArea"
+                                  class="flex-1 w-full bg-enterprise-950 text-slate-300 font-mono text-xs p-4 rounded border border-enterprise-800 focus:outline-none focus:border-enterprise-accent resize-none leading-relaxed"
+                                  placeholder="Awaiting document ingestion…"></textarea>
                     </div>
                 </div>
             </section>
+
         </main>
     </div>
 
+    <!--
+        Script load order is critical:
+          1. Supabase SDK  — defines window.supabase
+          2. mockData.js   — calls supabase.createClient(), defines loadLatestProposal()
+          3. app.js        — calls loadLatestProposal() and renderDatasetToDashboard()
+    -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-    </script>
     <script src="mockData.js"></script>
     <script src="app.js"></script>
 </body>

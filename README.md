@@ -20,3 +20,14 @@ The frontend layer leverages a highly maintainable, decoupled structure written 
 ├── index.html     # Application layout, UI shells, and Tailwind CSS configuration
 ├── app.js         # View-Controller handling SPA tab routing and DOM updates
 └── mockData.js    # Data layer representing model output structures and metrics data
+
+
+
+to start backend: 
+
+in terminal 01:
+---   cd C:\workstation\Projects\Trident\backend
+---   venv\Scripts\activate
+---   python main.py
+in terminal 02:
+---   ngrok http 8000
